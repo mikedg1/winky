@@ -15,23 +15,29 @@ limitations under the License.
 */
 package com.mikedg.android.glass.winky;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Locale;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements RecognitionListener {
 
     private static String TAG = "dgGestureService";
     Object glassGestureManager;
+	SpeechRecognizer speechRecognizer;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,10 @@ public class MainActivity extends Activity {
         {
             finish();
         }
+        
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(this);
+        speechRecognizer.startListening(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH));
         
         glassGestureManager = this.getSystemService(str);
     }
@@ -83,7 +93,6 @@ public class MainActivity extends Activity {
         enableWinkReceiver();
         enableWinkDetection();
     }
-    
 
     public void clearCalibation() {
         try {
@@ -130,4 +139,60 @@ public class MainActivity extends Activity {
         }
         return null;
     }
+    
+    @Override
+    protected void onStop() {
+    	super.onStop();
+    	
+    	speechRecognizer.stopListening();
+    	speechRecognizer.destroy();
+    }
+
+	@Override
+	public void onBeginningOfSpeech() {
+	}
+
+	@Override
+	public void onBufferReceived(byte[] buffer) {
+	}
+
+	@Override
+	public void onEndOfSpeech() {
+	}
+
+	@Override
+	public void onError(int error) {
+	}
+
+	@Override
+	public void onEvent(int eventType, Bundle params) {
+	}
+
+	@Override
+	public void onPartialResults(Bundle partialResults) {
+	}
+
+	@Override
+	public void onReadyForSpeech(Bundle params) {
+	}
+
+	@Override
+	public void onResults(Bundle results) {
+		String calibrationString = getString(R.string.button_calibration).toLowerCase(Locale.getDefault());
+		String clearCalibrationString = getString(R.string.button_clear_calibration).toLowerCase(Locale.getDefault());
+		
+		ArrayList<String> possibleInput = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+		for (String input : possibleInput) {
+			input = input.toLowerCase(Locale.getDefault());
+			if (calibrationString.equals(input)) {
+				onClick_calibration(null);
+			} else if (clearCalibrationString.equals(input)) {
+				onClick_clearCalibration(null);
+			}
+		}
+	}
+
+	@Override
+	public void onRmsChanged(float rmsdB) {
+	}
 }
