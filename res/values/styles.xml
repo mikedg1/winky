@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Pulled form the Phone app on Glass -->
+    <style name="GlassTheme" parent="android:Theme.Holo" tools:ignore="PrivateResource,PrivateResource">
+        <item name="android:screenOrientation">landscape</item>
+        <item name="android:windowBackground">@*android:color/black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:colorBackgroundCacheHint">@*android:color/black</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+</resources>

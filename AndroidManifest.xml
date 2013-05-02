@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mikedg.android.glass.winky"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="17" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/GlassTheme" >
+        <activity
+            android:name="com.mikedg.android.glass.winky.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name="com.mikedg.android.glass.winky.EyeGestureReceiver" >
+            <intent-filter android:priority="2000">
+                <action android:name="com.google.glass.action.EYE_GESTURE" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
