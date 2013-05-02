@@ -9,7 +9,7 @@ A way to enable the wink gesture on Google Glass to take a photo.
 So why do we need this app?
 There's at least one location in code on Glass that does a check to see if the wink gesture should be enabled and then turns it off if it shouldn't. This turns on the wink gesture, and makes sure that Glass won't be able to disable it by intercepting any future wink gestures and responding with a photo.
 
-Who is Mike DiGiovanni? Emerging technology lead at Roundarch Isobar (http://www.roundarchisobar.com) Mike has interests in all areas of mobile development and wearable computing. As a long time Android developer, he is looking forward to working wiht Google Glass.
+Who is Mike DiGiovanni? Emerging technology lead at Roundarch Isobar (http://www.roundarchisobar.com) Mike has interests in all areas of mobile development and wearable computing. As a long time Android developer, he is looking forward to working with Google Glass.
 
 Copyright 2013 Michael DiGiovanni glass@mikedg.com
 
