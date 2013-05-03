@@ -18,9 +18,11 @@ package com.mikedg.android.glass.winky;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.backup.RestoreObserver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -53,9 +55,20 @@ public class MainActivity extends Activity implements RecognitionListener {
         
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(this);
-        speechRecognizer.startListening(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH));
+        
+        startListening();
         
         glassGestureManager = this.getSystemService(str);
+    }
+    
+    private void startListening() {
+    	Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "com.mikedg.android.glass.winky");
+
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5); 
+        
+        speechRecognizer.startListening(intent);
     }
 
     public void onClick_calibration(View view) {
@@ -162,6 +175,7 @@ public class MainActivity extends Activity implements RecognitionListener {
 
 	@Override
 	public void onError(int error) {
+		Toast.makeText(this, "I couldn't understand you correctly", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
@@ -174,6 +188,7 @@ public class MainActivity extends Activity implements RecognitionListener {
 
 	@Override
 	public void onReadyForSpeech(Bundle params) {
+		Toast.makeText(this, "Tell me what you want to do now", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
@@ -186,10 +201,18 @@ public class MainActivity extends Activity implements RecognitionListener {
 			input = input.toLowerCase(Locale.getDefault());
 			if (calibrationString.equals(input)) {
 				onClick_calibration(null);
+				
+				return;
 			} else if (clearCalibrationString.equals(input)) {
 				onClick_clearCalibration(null);
+				
+				return;
 			}
 		}
+		
+		startListening();
+		
+		Toast.makeText(this, "'" + possibleInput.get(0) + "'? No. Please say 'calibration' or 'clear calibration'", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
