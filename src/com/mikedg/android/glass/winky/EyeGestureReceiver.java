@@ -18,6 +18,7 @@ package com.mikedg.android.glass.winky;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
 
 public class EyeGestureReceiver extends BroadcastReceiver {
 
@@ -25,8 +26,15 @@ public class EyeGestureReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         abortBroadcast(); //So we have a problem if we abort this broadcast, because we can't calibrate :(
 
-        //The sloppy way of launching the default camera taking app
+        //wakeUp(context); //Oh god this is beyond trivial, didn't even need to implement that :)
+        //takePhoto(context);
+    }
+
+	private void takePhoto(Context context) {
+	    //The sloppy way of launching the default camera taking app
         Intent i = new Intent("android.intent.action.CAMERA_BUTTON");
         context.sendBroadcast(i);
-    }
+	}
+    
+    
 }
