@@ -20,13 +20,22 @@ import android.content.Context;
 import android.content.Intent;
 
 public class EyeGestureReceiver extends BroadcastReceiver {
-
+    //public static Boolean burstMode = null;
+    
     @Override
     public void onReceive(Context context, Intent intent) {
         abortBroadcast(); //So we have a problem if we abort this broadcast, because we can't calibrate :(
 
-        //The sloppy way of launching the default camera taking app
-        Intent i = new Intent("android.intent.action.CAMERA_BUTTON");
-        context.sendBroadcast(i);
+        if (Prefs.getInstance(context).getBurst()) {
+            Intent i = new Intent(context, TreyBurstActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.putExtra(TreyBurstActivity.EXTRA_TIMELINE, Prefs.getInstance(context).getSaveToTimeline());
+            context.startActivity(i);
+        } else
+        {
+            //The sloppy way of launching the default camera taking app
+            Intent i = new Intent("android.intent.action.CAMERA_BUTTON");
+            context.sendBroadcast(i);
+        }
     }
 }
