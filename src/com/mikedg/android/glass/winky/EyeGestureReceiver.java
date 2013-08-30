@@ -18,6 +18,7 @@ package com.mikedg.android.glass.winky;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
 
 public class EyeGestureReceiver extends BroadcastReceiver {
     //public static Boolean burstMode = null;
@@ -26,8 +27,14 @@ public class EyeGestureReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         abortBroadcast(); //So we have a problem if we abort this broadcast, because we can't calibrate :(
 
-        //wakeUp(context); //Oh god this is beyond trivial, didn't even need to implement that :)
-        //takePhoto(context);
+        PowerManager pm = (PowerManager)
+                context.getSystemService(Context.POWER_SERVICE);
+        if (pm.isScreenOn() || !Prefs.getInstance(context).getWake()) {
+            takePhoto(context);
+        } else {
+            //Wake up, do nothing
+            //Wonder if this works or not
+        }
     }
 
 	private void takePhoto(Context context) {

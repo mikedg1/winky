@@ -10,7 +10,10 @@ public class Prefs {
 
     private static final String TIMELINE_KEY = "savetoTimeline";
     private static final boolean TIMELINE_DEFAULT = false;
-    
+
+    private static final String WAKE_KEY = "wake";
+    private static final boolean WAKE_DEFAULT = false;
+
     private SharedPreferences mPrefs;
     private static Prefs sPrefs;
     
@@ -39,5 +42,13 @@ public class Prefs {
 
     public boolean getSaveToTimeline() {
         return mPrefs.getBoolean(Prefs.TIMELINE_KEY, Prefs.TIMELINE_DEFAULT);
+    }
+
+    public void setWake(boolean val) {
+        mPrefs.edit().putBoolean(Prefs.WAKE_KEY, val).apply();
+    }
+
+    public boolean getWake() {
+        return mPrefs.getBoolean(Prefs.WAKE_KEY, Prefs.WAKE_DEFAULT);
     }
 }

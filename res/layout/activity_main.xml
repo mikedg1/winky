@@ -14,7 +14,8 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:onClick="onClick_calibration"
-        android:text="@string/button_calibration" />
+        android:text="Calibration"
+        android:id="@+id/button"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -39,5 +40,14 @@
         android:layout_alignBottom="@+id/checkBox_burst"
         android:layout_alignRight="@+id/button1"
         android:text="Save to timeline" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wink wakes up (Wink again for photo)"
+        android:id="@+id/checkBox_wake"
+        android:checked="false"
+        android:layout_above="@+id/checkBox_burst"
+        android:layout_alignParentLeft="true"/>
 
 </RelativeLayout>
