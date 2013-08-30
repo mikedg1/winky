@@ -15,36 +15,32 @@ limitations under the License.
 */
 package com.mikedg.android.glass.winky;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-
 import android.app.Activity;
-import android.app.backup.RestoreObserver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.speech.RecognitionListener;
-import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements RecognitionListener {
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-    private static String TAG = "dgGestureService";
+public class MainActivity extends Activity {
+	private static String TAG = "dgGestureService";
     Object glassGestureManager;
-	SpeechRecognizer speechRecognizer;
-    
+    private boolean mJustSelected;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
         
         //Get the string for the gesture service that we want
         String str = getConstantFromClass("GLASS_GESTURE_SERVICE", Context.class);
@@ -52,31 +48,17 @@ public class MainActivity extends Activity implements RecognitionListener {
         {
             finish();
         }
-        
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-        speechRecognizer.setRecognitionListener(this);
-        
-        startListening();
-        
+        openOptionsMenu();
         glassGestureManager = this.getSystemService(str);
     }
     
-    private void startListening() {
-    	Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "com.mikedg.android.glass.winky");
-
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5); 
-        
-        speechRecognizer.startListening(intent);
-    }
-
-    public void onClick_calibration(View view) {
-        //Disables the wink receiver while we calibrate because calibration won't receive a wink if we intercept it
-        disableWinkReceiver();
-        this.startActivity(new Intent("com.google.glass.action.ACTION_WINK_CALIBRATION"));
-    }
-    
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main, menu);
+	    return true;
+	}
+	
     private void disableWinkReceiver() {
         setWinkReceiverEnabled(false);
     }
@@ -90,12 +72,7 @@ public class MainActivity extends Activity implements RecognitionListener {
     private void enableWinkReceiver() {
         setWinkReceiverEnabled(true);
     }
-    
-    public void onClick_clearCalibration(View view) {
-        clearCalibation();
-        Toast.makeText(this, "Cleared calibration", Toast.LENGTH_SHORT).show();
-    }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -105,6 +82,8 @@ public class MainActivity extends Activity implements RecognitionListener {
         //Calibrate should enable it by default though
         enableWinkReceiver();
         enableWinkDetection();
+
+        openOptionsMenu();
     }
 
     public void clearCalibation() {
@@ -152,70 +131,41 @@ public class MainActivity extends Activity implements RecognitionListener {
         }
         return null;
     }
-    
-    @Override
-    protected void onStop() {
-    	super.onStop();
-    	
-    	speechRecognizer.stopListening();
-    	speechRecognizer.destroy();
-    }
 
 	@Override
-	public void onBeginningOfSpeech() {
-	}
+	public boolean onOptionsItemSelected(MenuItem item) {
+        mJustSelected = true;
 
-	@Override
-	public void onBufferReceived(byte[] buffer) {
-	}
-
-	@Override
-	public void onEndOfSpeech() {
-	}
-
-	@Override
-	public void onError(int error) {
-		Toast.makeText(this, "I couldn't understand you correctly", Toast.LENGTH_LONG).show();
-	}
-
-	@Override
-	public void onEvent(int eventType, Bundle params) {
-	}
-
-	@Override
-	public void onPartialResults(Bundle partialResults) {
-	}
-
-	@Override
-	public void onReadyForSpeech(Bundle params) {
-		Toast.makeText(this, "Tell me what you want to do now", Toast.LENGTH_LONG).show();
-	}
-
-	@Override
-	public void onResults(Bundle results) {
-		String calibrationString = getString(R.string.button_calibration).toLowerCase(Locale.getDefault());
-		String clearCalibrationString = getString(R.string.button_clear_calibration).toLowerCase(Locale.getDefault());
-		
-		ArrayList<String> possibleInput = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-		for (String input : possibleInput) {
-			input = input.toLowerCase(Locale.getDefault());
-			if (calibrationString.equals(input)) {
-				onClick_calibration(null);
-				
-				return;
-			} else if (clearCalibrationString.equals(input)) {
-				onClick_clearCalibration(null);
-				
-				return;
-			}
+		switch (item.getItemId()) {
+            case R.id.calibration_menu_item:
+                //Disables the wink receiver while we calibrate because calibration won't receive a wink if we intercept it
+                disableWinkReceiver();
+                this.startActivity(new Intent("com.google.glass.action.ACTION_WINK_CALIBRATION"));
+                return false;
+            case R.id.clear_menu_item:
+                clearCalibation();
+                Toast.makeText(this, "Cleared calibration", Toast.LENGTH_SHORT).show();
+                return false;
 		}
-		
-		startListening();
-		
-		Toast.makeText(this, "'" + possibleInput.get(0) + "'? No. Please say 'calibration' or 'clear calibration'", Toast.LENGTH_LONG).show();
+        return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onRmsChanged(float rmsdB) {
-	}
+    @Override
+    public void onOptionsMenuClosed(Menu menu) {
+        if (mJustSelected) {
+            //FIXME: need to wait a bit
+            Handler h = new Handler(Looper.getMainLooper());
+            h.post(new Runnable() {
+                @Override
+                public void run() {
+                    openOptionsMenu();
+                }
+            });
+            mJustSelected = false;
+        } else {
+            //User dismissed so back out completely
+            //FIXME: right now, calling finish here doesn't seem to let us re-enable the receiver
+            //finish();
+        }
+    }
 }
