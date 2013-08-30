@@ -7,6 +7,7 @@
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
@@ -28,6 +29,7 @@
                 <action android:name="com.google.glass.action.EYE_GESTURE" />
             </intent-filter>
         </receiver>
+        <activity android:name="TreyBurstActivity"></activity>
     </application>
 
 </manifest>

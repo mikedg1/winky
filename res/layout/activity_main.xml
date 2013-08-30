@@ -14,7 +14,7 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:onClick="onClick_calibration"
-        android:text="Calibration" />
+        android:text="@string/button_calibration" />
 
     <Button
         android:layout_width="wrap_content"
@@ -22,6 +22,22 @@
         android:layout_alignParentRight="true"
         android:onClick="onClick_clearCalibration"
         android:layout_centerVertical="true"
-        android:text="Clear Calibration" />
+        android:text="@string/button_clear_calibration" android:id="@+id/button1"/>
+
+    <CheckBox
+        android:id="@+id/checkBox_burst"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/checkBox_burst_text" />
+
+    <CheckBox
+        android:id="@+id/checkBox_timeline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/checkBox_burst"
+        android:layout_alignRight="@+id/button1"
+        android:text="Save to timeline" />
 
 </RelativeLayout>

@@ -21,17 +21,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Toast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Locale;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements RecognitionListener {
 
     private static String TAG = "dgGestureService";
     Object glassGestureManager;
+	SpeechRecognizer speechRecognizer;
+    CheckBox burstCheckBox;
+    CheckBox timelineCheckBox;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +56,44 @@ public class MainActivity extends Activity {
             finish();
         }
         
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(this);
+        
+        startListening();
+        
         glassGestureManager = this.getSystemService(str);
+        
+        setupCheckBoxes();
+    }
+    
+    private void setupCheckBoxes() {
+        burstCheckBox = (CheckBox) findViewById(R.id.checkBox_burst);
+        timelineCheckBox = (CheckBox) findViewById(R.id.checkBox_timeline);
+        
+        burstCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Prefs.getInstance(MainActivity.this).setBurst(isChecked);
+            }
+        });
+        timelineCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Prefs.getInstance(MainActivity.this).setSaveToTimeline(isChecked);
+            }
+        });        
+    }
+
+    private void startListening() {
+    	Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "com.mikedg.android.glass.winky");
+
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5); 
+        
+        speechRecognizer.startListening(intent);
     }
 
     public void onClick_calibration(View view) {
@@ -82,8 +130,10 @@ public class MainActivity extends Activity {
         //Calibrate should enable it by default though
         enableWinkReceiver();
         enableWinkDetection();
+        
+        burstCheckBox.setChecked(Prefs.getInstance(this).getBurst());
+        timelineCheckBox.setChecked(Prefs.getInstance(this).getSaveToTimeline());
     }
-    
 
     public void clearCalibation() {
         try {
@@ -130,4 +180,70 @@ public class MainActivity extends Activity {
         }
         return null;
     }
+    
+    @Override
+    protected void onStop() {
+    	super.onStop();
+    	
+//    	speechRecognizer.stopListening();
+//    	speechRecognizer.destroy();
+    }
+
+	@Override
+	public void onBeginningOfSpeech() {
+	}
+
+	@Override
+	public void onBufferReceived(byte[] buffer) {
+	}
+
+	@Override
+	public void onEndOfSpeech() {
+	}
+
+	@Override
+	public void onError(int error) {
+		Toast.makeText(this, "I couldn't understand you correctly", Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onEvent(int eventType, Bundle params) {
+	}
+
+	@Override
+	public void onPartialResults(Bundle partialResults) {
+	}
+
+	@Override
+	public void onReadyForSpeech(Bundle params) {
+		Toast.makeText(this, "Tell me what you want to do now", Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onResults(Bundle results) {
+		String calibrationString = getString(R.string.button_calibration).toLowerCase(Locale.getDefault());
+		String clearCalibrationString = getString(R.string.button_clear_calibration).toLowerCase(Locale.getDefault());
+		
+		ArrayList<String> possibleInput = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+		for (String input : possibleInput) {
+			input = input.toLowerCase(Locale.getDefault());
+			if (calibrationString.equals(input)) {
+				onClick_calibration(null);
+				
+				return;
+			} else if (clearCalibrationString.equals(input)) {
+				onClick_clearCalibration(null);
+				
+				return;
+			}
+		}
+		
+		startListening();
+		
+		Toast.makeText(this, "'" + possibleInput.get(0) + "'? No. Please say 'calibration' or 'clear calibration'", Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onRmsChanged(float rmsdB) {
+	}
 }
