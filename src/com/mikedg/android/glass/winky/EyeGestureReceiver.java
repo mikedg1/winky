@@ -34,6 +34,10 @@ public class EyeGestureReceiver extends BroadcastReceiver {
         } else {
             //Wake up, do nothing
             //Wonder if this works or not
+            Intent i = new Intent(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(i);
         }
     }
 
