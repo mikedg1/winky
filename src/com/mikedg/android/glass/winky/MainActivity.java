@@ -118,7 +118,8 @@ public class MainActivity extends Activity {
         //Calibrate should enable it by default though
         enableWinkReceiver();
         enableWinkDetection();
-        
+
+        wakeCheckBox.setChecked(Prefs.getInstance(this).getWake());
         burstCheckBox.setChecked(Prefs.getInstance(this).getBurst());
         timelineCheckBox.setChecked(Prefs.getInstance(this).getSaveToTimeline());
     }
