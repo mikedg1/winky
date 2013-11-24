@@ -1,4 +1,4 @@
-SINCE XE11 WINKY DOES NOT WORK
+SINCE XE11, WINKY DOES NOT WORK
 ===========
 See: https://github.com/kaze0/winky/issues/6
 
