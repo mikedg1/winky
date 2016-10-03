@@ -26,7 +26,7 @@
         </activity>
 
         <receiver android:name="com.mikedg.android.glass.winky.EyeGestureReceiver" >
-            <intent-filter android:priority="2000">
+            <intent-filter android:priority="999">
                 <action android:name="com.google.glass.action.EYE_GESTURE" />
             </intent-filter>
         </receiver>
